@@ -31,7 +31,7 @@ export async function createCandidate(candidate, env) {
 
 export async function getCandidateById(candidateId, env) {
     try {
-        const { results } = await env.DB.prepare("SELECT * FROM candidates WHERE user_id = ?").bind(candidateId).all();
+        const { results } = await env.DB.prepare("SELECT * FROM candidates WHERE candidates_id = ?").bind(candidateId).all();
         if (results.length === 0) {
             return new Response("Candidate not found", { status: 404 });
         }
@@ -55,7 +55,7 @@ export async function updateCandidate(candidateId, candidateData, env) {
             }
         });
 
-        sql += " WHERE user_id = ?";
+        sql += " WHERE candidates_id = ?";
         params.push(candidateId);
 
         await env.DB.prepare(sql).bind(...params).run();
@@ -68,7 +68,7 @@ export async function updateCandidate(candidateId, candidateData, env) {
 
 export async function deleteCandidate(candidateId, env) {
     try {
-        await env.DB.prepare("DELETE FROM candidates WHERE user_id = ?").bind(candidateId).run();
+        await env.DB.prepare("DELETE FROM candidates WHERE candidates_id = ?").bind(candidateId).run();
         return new Response("Candidate deleted successfully", { status: 200 });
     } catch (error) {
         console.error("Error deleting candidate:", error);
