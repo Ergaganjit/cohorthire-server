@@ -22,4 +22,6 @@ INSERT INTO candidates (
 ) VALUES
 ('John Doe', 'john.doe@example.com', '555-111-2222', 1, 'john_doe_resume.pdf', 'john_doe_cover_letter.pdf', 'applied'),
 ('Jane Smith', 'jane.smith@example.com', '555-333-4444', 2, 'jane_smith_resume.pdf', NULL, 'applied'),
-('Bob Brown', 'bob.brown@example.com', '555-777-8888', 16, 'bob_brown_resume.pdf', NULL, 'applied');
+('Bob Brown', 'bob.brown@example.com', '555-777-8888', 16, 'bob_brown_resume.pdf', NULL, 'applied'),
+('Bob Brown', 'bob.brown@example.com', '555-777-8888', 1, 'bob_brown_resume.pdf', NULL, 'applied'),
+('Charlie Adams', 'charlie.adams@example.com', '555-999-0000', 2, 'charlie_adams_resume.pdf', 'charlie_adams_cover_letter.pdf', 'applied');
