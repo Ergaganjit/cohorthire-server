@@ -1,7 +1,10 @@
 import { handleJobsRequest } from './routers/jobsRouter';
+import { handleCandidatesRequest } from './routers/candidatesRouter';
 
 export default {
     async fetch(request, env) {
+        const { pathname, method } = new URL(request.url);
+
         const headers = {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*', // Allow all origins
@@ -9,10 +12,19 @@ export default {
             'Access-Control-Allow-Headers': 'Content-Type'
         };
 
-        if (request.method === 'OPTIONS') {
+        // Handle preflight requests
+        if (method === 'OPTIONS') {
             return new Response(null, { status: 204, headers });
         }
 
-        return await handleJobsRequest(request, env);
+        // Route requests based on URL path
+        if (pathname.startsWith('/api/jobs')) {
+            return await handleJobsRequest(request, env);
+        } else if (pathname.startsWith('/api/candidates')) {
+            return await handleCandidatesRequest(request, env);
+        } else {
+            // If the request does not match any known routes, return 404
+            return new Response('Not Found', { status: 404, headers });
+        }
     },
 };

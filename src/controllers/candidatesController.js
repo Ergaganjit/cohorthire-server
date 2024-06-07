@@ -1,65 +1,77 @@
-export const fetchAllCandidates = async (env) => {
+export async function getAllCandidates(env) {
     try {
         const { results } = await env.DB.prepare("SELECT * FROM candidates").all();
-        return results;
+        return new Response(JSON.stringify(results), { status: 200, headers: { 'Content-Type': 'application/json' } });
     } catch (error) {
-        throw new Error("Error fetching candidates: " + error.message);
+        console.error("Error fetching all candidates:", error);
+        return new Response("Failed to fetch candidates", { status: 500 });
     }
-};
+}
 
-export const fetchCandidateById = async (env, candidateId) => {
+export async function createCandidate(candidate, env) {
     try {
-        const { results } = await env.DB.prepare("SELECT * FROM candidates WHERE id = ?").bind(candidateId).all();
-        if (results.length === 0) {
-            throw new Error("Candidate not found");
-        }
-        return results[0];
-    } catch (error) {
-        throw new Error("Error fetching candidate: " + error.message);
-    }
-};
+        const {
+            name, email, phone, jobId, resume, coverLetter
+        } = candidate;
 
-export const createCandidate = async (env, candidateData) => {
-    try {
         await env.DB.prepare(
-          `INSERT INTO candidates (
-            name, email, phone, job_id, resume, cover_letter, status
-          ) VALUES (?, ?, ?, ?, ?, ?, ?)`
+            `INSERT INTO candidates (
+                name, email, phone, jobId, resume, coverLetter
+            ) VALUES (?, ?, ?, ?, ?, ?)`
         ).bind(
-          candidateData.name, candidateData.email, candidateData.phone, candidateData.job_id, 
-          candidateData.resume, candidateData.cover_letter, candidateData.status
+            name, email, phone, jobId, resume, coverLetter
         ).run();
-    } catch (error) {
-        throw new Error("Error creating candidate: " + error.message);
-    }
-};
 
-export const deleteCandidateById = async (env, candidateId) => {
+        return new Response("Candidate created successfully", { status: 201 });
+    } catch (error) {
+        console.error("Error creating candidate:", error);
+        return new Response("Failed to create candidate", { status: 500 });
+    }
+}
+
+export async function getCandidateById(candidateId, env) {
     try {
-        await env.DB.prepare("DELETE FROM candidates WHERE id = ?").bind(candidateId).run();
+        const { results } = await env.DB.prepare("SELECT * FROM candidates WHERE user_id = ?").bind(candidateId).all();
+        if (results.length === 0) {
+            return new Response("Candidate not found", { status: 404 });
+        }
+        return new Response(JSON.stringify(results[0]), { status: 200, headers: { 'Content-Type': 'application/json' } });
     } catch (error) {
-        throw new Error("Error deleting candidate: " + error.message);
+        console.error("Error fetching candidate by ID:", error);
+        return new Response("Failed to fetch candidate", { status: 500 });
     }
-};
+}
 
-export const updateCandidateById = async (env, candidateId, candidateData) => {
+export async function updateCandidate(candidateId, candidateData, env) {
     try {
         let sql = "UPDATE candidates SET ";
         const params = [];
 
         Object.keys(candidateData).forEach((key, index) => {
-          sql += `${key} = ?`;
-          params.push(candidateData[key]);
-          if (index < Object.keys(candidateData).length - 1) {
-            sql += ", ";
-          }
+            sql += `${key} = ?`;
+            params.push(candidateData[key]);
+            if (index < Object.keys(candidateData).length - 1) {
+                sql += ", ";
+            }
         });
 
-        sql += " WHERE id = ?";
+        sql += " WHERE user_id = ?";
         params.push(candidateId);
 
         await env.DB.prepare(sql).bind(...params).run();
+        return new Response("Candidate updated successfully", { status: 200 });
     } catch (error) {
-        throw new Error("Error updating candidate: " + error.message);
+        console.error("Error updating candidate:", error);
+        return new Response("Failed to update candidate", { status: 500 });
     }
-};
+}
+
+export async function deleteCandidate(candidateId, env) {
+    try {
+        await env.DB.prepare("DELETE FROM candidates WHERE user_id = ?").bind(candidateId).run();
+        return new Response("Candidate deleted successfully", { status: 200 });
+    } catch (error) {
+        console.error("Error deleting candidate:", error);
+        return new Response("Failed to delete candidate", { status: 500 });
+    }
+}

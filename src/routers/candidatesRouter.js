@@ -1,67 +1,27 @@
-import { Router } from 'itty-router';
-import { 
-  fetchAllCandidates, 
-  fetchCandidateById, 
-  createCandidate, 
-  deleteCandidateById, 
-  updateCandidateById 
-} from '../controllers/candidatesController';
+import * as candidatesController from '../controllers/candidatesController';
 
-const candidatesRouter = Router();
+export async function handleCandidatesRequest(request, env) {
+    const { method, url } = request;
+    const { pathname } = new URL(url);
 
-// GET all candidates
-candidatesRouter.get('/', async ({ env }) => {
-  try {
-    const candidates = await fetchAllCandidates(env);
-    return new Response(JSON.stringify(candidates), { status: 200 });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
-  }
-});
+    if (method === 'GET') {
+        if (pathname === "/api/candidates") {
+            return await candidatesController.getAllCandidates(env);
+        } else if (pathname.startsWith("/api/candidates/") && pathname.split("/").length === 4) {
+            const candidateId = pathname.split("/")[3];
+            return await candidatesController.getCandidateById(candidateId, env);
+        }
+    } else if (method === 'POST' && pathname === "/api/candidates") {
+        const body = await request.json();
+        return await candidatesController.createCandidate(body, env);
+    } else if ((method === 'PUT' || method === 'PATCH') && pathname.startsWith("/api/candidates/") && pathname.split("/").length === 4) {
+        const candidateId = pathname.split("/")[3];
+        const body = await request.json();
+        return await candidatesController.updateCandidate(candidateId, body, env);
+    } else if (method === 'DELETE' && pathname.startsWith("/api/candidates/") && pathname.split("/").length === 4) {
+        const candidateId = pathname.split("/")[3];
+        return await candidatesController.deleteCandidate(candidateId, env);
+    }
 
-// GET candidate by ID
-candidatesRouter.get('/:id', async ({ params, env }) => {
-  const candidateId = params.id;
-  try {
-    const candidate = await fetchCandidateById(env, candidateId);
-    return new Response(JSON.stringify(candidate), { status: 200 });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 404 });
-  }
-});
-
-// POST new candidate
-candidatesRouter.post('/', async ({ request, env }) => {
-  try {
-    const candidateData = await request.json();
-    await createCandidate(env, candidateData);
-    return new Response('Candidate created successfully', { status: 201 });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
-  }
-});
-
-// DELETE candidate by ID
-candidatesRouter.delete('/:id', async ({ params, env }) => {
-  const candidateId = params.id;
-  try {
-    await deleteCandidateById(env, candidateId);
-    return new Response('Candidate deleted successfully', { status: 200 });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
-  }
-});
-
-// PUT (update) candidate by ID
-candidatesRouter.put('/:id', async ({ params, request, env }) => {
-  const candidateId = params.id;
-  try {
-    const candidateData = await request.json();
-    await updateCandidateById(env, candidateId, candidateData);
-    return new Response('Candidate updated successfully', { status: 200 });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
-  }
-});
-
-export default candidatesRouter;
+    return new Response("Method not allowed or path not found", { status: 405 });
+}
