@@ -3,7 +3,8 @@ import { handleCandidatesRequest } from './routers/candidatesRouter';
 
 export default {
     async fetch(request, env) {
-        const { pathname, method } = new URL(request.url);
+        const { method, url } = request;
+        const { pathname } = new URL(url);
 
         const headers = {
             'Content-Type': 'application/json',
