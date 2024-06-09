@@ -38,9 +38,7 @@ export async function getAllJobs(env) {
   
       const headers = {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*', // Allow requests from any origin
-        // 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS', // Allow these methods
-        // 'Access-Control-Allow-Headers': 'Content-Type' // Allow Content-Type header
+        'Access-Control-Allow-Origin': '*', 
       };
   
       return new Response("Job created successfully", { status: 201, headers });
@@ -60,9 +58,7 @@ export async function getJobById(jobId, env) {
       const responseBody = JSON.stringify(results[0]);
       const headers = {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*', // Allow requests from any origin
-        // 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS', // Allow these methods
-        // 'Access-Control-Allow-Headers': 'Content-Type' // Allow Content-Type header
+        'Access-Control-Allow-Origin': '*', 
       };
       
       return new Response(responseBody, { status: 200, headers });
@@ -93,9 +89,7 @@ export async function getJobById(jobId, env) {
       
       const headers = {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*', // Allow requests from any origin
-        // 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS', // Allow these methods
-        // 'Access-Control-Allow-Headers': 'Content-Type' // Allow Content-Type header
+        'Access-Control-Allow-Origin': '*', 
       };
   
       return new Response("Job updated successfully", { status: 200, headers });
@@ -112,9 +106,7 @@ export async function getJobById(jobId, env) {
       
       const headers = {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*', // Allow requests from any origin
-        // 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS', // Allow these methods
-        // 'Access-Control-Allow-Headers': 'Content-Type' // Allow Content-Type header
+        'Access-Control-Allow-Origin': '*', 
       };
   
       return new Response("Job deleted successfully", { status: 200, headers });

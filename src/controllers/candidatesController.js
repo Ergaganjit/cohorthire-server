@@ -1,12 +1,17 @@
 export async function getAllCandidates(env) {
     try {
-        const { results } = await env.DB.prepare("SELECT * FROM candidates").all();
-        return new Response(JSON.stringify(results), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      const { results } = await env.DB.prepare("SELECT * FROM candidates").all();
+      const responseBody = JSON.stringify(results);
+      const headers = {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*', 
+      };
+      return new Response(responseBody, { status: 200, headers });
     } catch (error) {
-        console.error("Error fetching all candidates:", error);
-        return new Response("Failed to fetch candidates", { status: 500 });
+      console.error("Error fetching all jobs:", error);
+      return new Response("Failed to fetch jobs", { status: 500 });
     }
-}
+  }
 
 export async function createCandidate(candidate, env) {
     try {
@@ -21,7 +26,11 @@ export async function createCandidate(candidate, env) {
         ).bind(
             name, email, phone, jobId, resume, coverLetter
         ).run();
-
+        
+        const headers = {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*', 
+          };
         return new Response("Candidate created successfully", { status: 201 });
     } catch (error) {
         console.error("Error creating candidate:", error);
@@ -35,12 +44,18 @@ export async function getCandidateById(candidateId, env) {
         if (results.length === 0) {
             return new Response("Candidate not found", { status: 404 });
         }
-        return new Response(JSON.stringify(results[0]), { status: 200, headers: { 'Content-Type': 'application/json' } });
-    } catch (error) {
+        const responseBody = JSON.stringify(results[0]);
+        const headers = {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*', 
+        };
+        
+        return new Response(responseBody, { status: 200, headers });
+      } catch (error) {
         console.error("Error fetching candidate by ID:", error);
         return new Response("Failed to fetch candidate", { status: 500 });
+      }
     }
-}
 
 export async function updateCandidate(candidateId, candidateData, env) {
     try {
@@ -59,7 +74,11 @@ export async function updateCandidate(candidateId, candidateData, env) {
         params.push(candidateId);
 
         await env.DB.prepare(sql).bind(...params).run();
-        return new Response("Candidate updated successfully", { status: 200 });
+        const headers = {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*', 
+          };
+          return new Response("Job updated successfully", { status: 200, headers });
     } catch (error) {
         console.error("Error updating candidate:", error);
         return new Response("Failed to update candidate", { status: 500 });
@@ -69,6 +88,10 @@ export async function updateCandidate(candidateId, candidateData, env) {
 export async function deleteCandidate(candidateId, env) {
     try {
         await env.DB.prepare("DELETE FROM candidates WHERE candidates_id = ?").bind(candidateId).run();
+        const headers = {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*', 
+          };
         return new Response("Candidate deleted successfully", { status: 200 });
     } catch (error) {
         console.error("Error deleting candidate:", error);

@@ -1,6 +1,7 @@
 import * as candidatesController from '../controllers/candidatesController';
 
 export async function handleCandidatesRequest(request, env) {
+    try{
     const { method, url } = request;
     const { pathname } = new URL(url);
 
@@ -24,4 +25,9 @@ export async function handleCandidatesRequest(request, env) {
     }
 
     return new Response("Method not allowed or path not found", { status: 405 });
+}
+catch(error){
+    console.error("Error handling candidates request:", error);
+        return new Response("Internal Server Error", { status: 500 });
+}
 }
