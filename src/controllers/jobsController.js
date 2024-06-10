@@ -1,7 +1,22 @@
 export async function getAllJobs(env) {
   try {
     const { results } = await env.DB.prepare("SELECT * FROM jobs").all();
-    const responseBody = JSON.stringify(results);
+    const jobIds = results.map(job => job.id);
+    const candidateCounts = await Promise.all(
+      jobIds.map(id =>
+        env.DB
+          .prepare('SELECT jobId, COUNT(*) as candidateCount FROM candidate_jobs WHERE jobId = ? GROUP BY jobId')
+          .bind(id)
+          .first()
+      )
+    );
+
+    const jobsWithCandidateCounts = results.map((job, index) => ({
+      ...job,
+      candidateCount: candidateCounts[index]?.candidateCount ?? 0 // default to 0 if null
+    }));
+
+    const responseBody = JSON.stringify(jobsWithCandidateCounts);
     return new Response(responseBody, { status: 200 });
   } catch (error) {
     console.error("Error fetching all jobs:", error);
@@ -47,7 +62,9 @@ export async function getJobById(jobId, env) {
     if (results.length === 0) {
       return new Response("Job not found", { status: 404 });
     }
-    const responseBody = JSON.stringify(results[0]);
+    let jobInfo = await env.DB.prepare('SELECT jobId, COUNT(*) as candidateCount FROM candidate_jobs WHERE jobId = ? GROUP BY jobId').bind(jobId).first();
+    // console.log(jobInfo);
+    const responseBody  = JSON.stringify({...results[0], candidateCount: jobInfo.candidateCount});
     return new Response(responseBody, { status: 200 });
   } catch (error) {
     console.error("Error fetching job by ID:", error);
